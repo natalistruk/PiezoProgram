@@ -74,9 +74,9 @@ namespace Piezo
 
         private void FormX()
         {
-            xi = new double[n];
+            xi = new double[n + 1];
             xi[0] = 0;
-            for (int i = 1; i < n; i++)
+            for (int i = 1; i <= n; i++)
             {
                 xi[i] = xi[i - 1] + h;
 
@@ -95,9 +95,9 @@ namespace Piezo
         }
         private void FormFiDerivativeX()
         {
-            fiDerivativeX = new Function[n];
+            fiDerivativeX = new Function[n + 1];
 
-            for (int i = 0; i < n; i++)
+            for (int i = 0; i <= n; i++)
             {
                 Courant courant = new Courant(l, i, n);
                 fiDerivativeX[i] = new Function(courant.fiDerivative);
@@ -144,15 +144,14 @@ namespace Piezo
 
         private double[,] FormMatrix(double f)
         {
-            double[,] a = new double[n, 3];
-
+            double[,] a = new double[n + 1, 3];
 
             a[0, 0] = 0;
 
             a[0, 1] = IntegrateGauss((x) => (f * fiDerivativeX[0](x) * fiDerivativeX[0](x)), xi[0], xi[1]);
             a[0, 2] = IntegrateGauss((x) => (f * fiDerivativeX[0](x) * fiDerivativeX[1](x)), xi[0], xi[1]);
 
-            for (int i = 1; i < n - 1; i++)
+            for (int i = 1; i < n; i++)
             {
                 a[i, 0] = IntegrateGauss((x) => (f * fiDerivativeX[i - 1](x) * fiDerivativeX[i](x)), xi[i - 1], xi[i]);
                 a[i, 1] = IntegrateGauss((x) => (f * fiDerivativeX[i](x) * fiDerivativeX[i](x)), xi[i - 1], xi[i]);
@@ -161,9 +160,9 @@ namespace Piezo
 
             }
 
-            a[n - 1, 0] = IntegrateGauss((x) => (f * fiDerivativeX[n - 2](x) * fiDerivativeX[n - 1](x)), xi[n - 2], xi[n - 1]);
-            a[n - 1, 1] = IntegrateGauss((x) => (f * fiDerivativeX[n - 1](x) * fiDerivativeX[n - 1](x)), xi[n - 2], xi[n - 1]);
-            a[n - 1, 2] = 0;
+            a[n, 0] = IntegrateGauss((x) => (f * fiDerivativeX[n - 1](x) * fiDerivativeX[n](x)), xi[n - 1], xi[n]);
+            a[n, 1] = IntegrateGauss((x) => (f * fiDerivativeX[n](x) * fiDerivativeX[n](x)), xi[n - 1], xi[n]);
+            a[n, 2] = 0;
 
             return a;
         }
@@ -173,8 +172,8 @@ namespace Piezo
         {
             double b = IntegrateGauss((x) => (ro * fiDerivativeX[0](x) * fiDerivativeX[0](x)), xi[0], xi[1]);
             Console.WriteLine(b);
-            u = new double[n];
-            p = new double[n];
+            u = new double[n + 1];
+            p = new double[n + 1];
             double[,] C = FormMatrix(c);
             double[,] E = FormMatrix(e);
             double[,] G = FormMatrix(g);
@@ -234,7 +233,7 @@ namespace Piezo
 
 
 
-            double[,] m = new double[2 * n, 2 * n];
+            double[,] m = new double[2 * n + 2, 2 * n + 2];
 
             for (int i = 0; i < 2 * n; i++)
             {
@@ -247,7 +246,7 @@ namespace Piezo
             }
 
             //формуємо матрицю
-            for (int i = 0; i <= 2 * n - 1; i += 2)
+            for (int i = 0; i <= 2 * n + 1; i += 2)
             {
                 if (i >= 2)
                 {
@@ -265,7 +264,7 @@ namespace Piezo
                 m[i + 1, i + 1] = G[i / 2, 1];
 
 
-                if (i != 2 * n - 2)
+                if (i != 2 * n)
                 {
                     m[i, i + 2] = C[i / 2, 2];
                     m[i, i + 3] = E[i / 2, 2];
@@ -278,9 +277,9 @@ namespace Piezo
             }
 
             Console.WriteLine("-----Matrix m----");
-            for (int i = 0; i < 2 * n; i++)
+            for (int i = 0; i < 2 * n + 2; i++)
             {
-                for (int k = 0; k < 2 * n; k++)
+                for (int k = 0; k < 2 * n + 2; k++)
                 {
 
                     Console.Write($"{(m[i, k])}  ");
@@ -290,22 +289,19 @@ namespace Piezo
             }
 
             //формуємо вектор
-            double[] f = new double[2 * n];
+            double[] f = new double[2 * n + 2];
 
-            double[] ll = new double[n];
-            double[] r = new double[n];
-            for (int i = 0; i < n; i++)
+            double[] ll = new double[n + 1];
+            double[] r = new double[n + 1];
+            for (int i = 0; i < n + 1; i++)
             {
                 ll[i] = r[i] = 0;
 
             }
-            ll[n - 1] = sigma;
-            r[n - 1] = D;
+            ll[n] = sigma;
+            r[n] = D;
 
-
-
-
-            for (int i = 0; i < 2 * n; i += 2)
+            for (int i = 0; i < 2 * n + 2; i += 2)
             {
                 f[i] = ll[i / 2];
                 f[i + 1] = r[i / 2];
@@ -313,42 +309,46 @@ namespace Piezo
             }
             Console.WriteLine("-------Vector f ----- ");
 
-            for (int i = 0; i < 2 * n; i++)
+            for (int i = 0; i < 2 * n + 2; i++)
             {
                 Console.WriteLine(f[i]);
             }
             Console.WriteLine(" ");
 
+            //застосовуємо крайові умови на лівому кінці стержня
+            m[0, 0] = Math.Pow(10.0, 20.0);
+            m[1, 1] = Math.Pow(10.0, 20.0);
 
             Console.WriteLine("------ Matrix matrix-----");
-            Matrix[,] matrix = new Matrix[n, 3];
-            for (int i = 0; i < n; i++)
+            Matrix[,] matrix = new Matrix[n + 1, 3];
+            for (int i = 0; i < n + 1; i++)
             {
                 if (i != 0)
                 {
-                    matrix[i, 0] = new Matrix(m[2 * i, 2 * i - 2], m[2 * i, 2 * i - 1], m[2 * i + 1, 2 * i - 2], m[2 * i + 1, 2 * i - 1]);
+                    matrix[i, 0] = new Matrix(m[2 * i, 2 * i - 2], m[2 * i, 2 * i - 1],
+                        m[2 * i + 1, 2 * i - 2], m[2 * i + 1, 2 * i - 1]);
                     matrix[i, 0].PrintMatrix();
                     Console.WriteLine(" ");
                 }
 
-                matrix[i, 1] = new Matrix(m[2 * i, 2 * i], m[2 * i, 2 * i + 1], m[2 * i + 1, 2 * i], m[2 * i + 1, 2 * i + 1]);
+                matrix[i, 1] = new Matrix(m[2 * i, 2 * i], m[2 * i, 2 * i + 1], 
+                    m[2 * i + 1, 2 * i], m[2 * i + 1, 2 * i + 1]);
                 matrix[i, 1].PrintMatrix();
                 Console.WriteLine(" ");
-                if (i != n - 1)
+                if (i != n)
                 {
-                    matrix[i, 2] = new Matrix(m[2 * i, 2 * i + 2], m[2 * i, 2 * i + 3], m[2 * i + 1, 2 * i + 2], m[2 * i + 1, 2 * i + 3]);
+                    matrix[i, 2] = new Matrix(m[2 * i, 2 * i + 2], m[2 * i, 2 * i + 3], 
+                        m[2 * i + 1, 2 * i + 2], m[2 * i + 1, 2 * i + 3]);
                     matrix[i, 2].PrintMatrix();
                     Console.WriteLine(" ");
                 }
-
-
             }
             Console.WriteLine(" ");
 
 
-            Vector[] vector = new Vector[n];
+            Vector[] vector = new Vector[n + 1];
 
-            for (int i = 0; i < n; i++)
+            for (int i = 0; i < n + 1; i++)
             {
                 vector[i] = new Vector(f[2 * i], f[2 * i + 1]);
             }
@@ -356,24 +356,20 @@ namespace Piezo
             Vector[] res = BlockTridiagonalGauss(matrix, vector);
 
 
-            for (int i = 0; i < n; i++)
+            for (int i = 0; i < n + 1; i++)
             {
                 u[i] = res[i].A1;
                 p[i] = res[i].A2;
 
             }
             Console.WriteLine("-------res------ ");
-            for (int i = 0; i < n; i++)
+            for (int i = 0; i < n + 1; i++)
             {
                 Console.WriteLine(res[i].A1);
                 Console.WriteLine(res[i].A2);
                 Console.WriteLine(" ");
             }
             Console.WriteLine(" ");
-
-
-
-
         }
 
 
@@ -421,9 +417,6 @@ namespace Piezo
             }
 
             return res;
-
-
-
         }
 
     }
