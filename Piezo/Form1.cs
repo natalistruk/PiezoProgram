@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ZedGraph;
 
 namespace Piezo
 {
@@ -34,57 +35,49 @@ namespace Piezo
             double Sigma= Convert.ToDouble(sigmatextBox.Text);
             double D= Convert.ToDouble(DtextBox.Text);
 
-            /*MathExpressionParser roParser = new MathExpressionParser();
-            roParser.Init(rotextBox.Text);
-            Function Ro = new Function(roParser.Evaluate);
-
-            MathExpressionParser eParser = new MathExpressionParser();
-            roParser.Init(etextBox.Text);
-            Function E = new Function(eParser.Evaluate);
-
-            MathExpressionParser cParser = new MathExpressionParser();
-            roParser.Init(ctextBox.Text);
-            Function C = new Function(cParser.Evaluate);
-
-            MathExpressionParser gParser = new MathExpressionParser();
-            roParser.Init(gtextBox.Text);
-            Function G = new Function(gParser.Evaluate);
-
-            MathExpressionParser sigmaParser = new MathExpressionParser();
-            roParser.Init(sigmatextBox.Text);
-            Function Sigma = new Function(sigmaParser.Evaluate);
-
-            MathExpressionParser dParser = new MathExpressionParser();
-            roParser.Init(DtextBox.Text);
-            Function  D = new Function(roParser.Evaluate);
-            */
-
             solver = new Solver(Ro, C, E, G, Sigma, D, l, n);
             
 
             solver.Solve();
 
 
+            pGraphControl.Invalidate();
+            uGraphControl.Invalidate();
+            pGraphControl.GraphPane.Title.Text = "Графік p(x)";
+            pGraphControl.GraphPane.XAxis.Title.Text = "Вісь Ox";
+            pGraphControl.GraphPane.YAxis.Title.Text = "Вісь Oy";
+
+
+            uGraphControl.GraphPane.Title.Text = "Графік u(x)";
+            uGraphControl.GraphPane.XAxis.Title.Text = "Вісь Ox";
+            uGraphControl.GraphPane.YAxis.Title.Text = "Вісь Oy";
+
+            pGraphControl.GraphPane.CurveList.Clear();
+            uGraphControl.GraphPane.CurveList.Clear();
+            double[] x = new double[solver.N];
+            double[] u = new double[solver.N];
+            double[] p = new double[solver.N];
+            for (int i = 0; i < solver.N; i++)
+            {
+                x[i]= solver.X[i];
+                u[i] = solver.U[i];
+                p[i] = solver.P[i];
+            }
+            uGraphControl.GraphPane.AddCurve("u(x)", x, u, Color.BlueViolet, SymbolType.None);
+            pGraphControl.GraphPane.AddCurve("p(x)", x, p, Color.BlueViolet, SymbolType.None);
+
+            uGraphControl.AxisChange();
+            pGraphControl.AxisChange();
+
+
+            pGraphControl.Invalidate();
+            uGraphControl.Invalidate();
+
         }
 
-        private void label8_Click(object sender, EventArgs e)
+        private void Form1_Load(object sender, EventArgs e)
         {
-
-        }
-
-        private void textBox1_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label7_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void textBox2_TextChanged(object sender, EventArgs e)
-        {
-
+           
         }
     }
 }
