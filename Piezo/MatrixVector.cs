@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Piezo
 {
-    class Matrix : ICloneable
+    public class Matrix : ICloneable
     {
         private double a11 = 0;
         private double a12 = 0;
