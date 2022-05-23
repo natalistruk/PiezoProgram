@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using ZedGraph;
 
@@ -21,6 +15,28 @@ namespace Piezo
 
         private void label6_Click(object sender, EventArgs e)
         {
+
+        }
+        private void FillPNormDataGridView()
+        {
+            dataGridView1.Rows.Add();
+            int RowIndex = dataGridView1.RowCount - 1;
+            DataGridViewRow R = dataGridView1.Rows[RowIndex];
+            R.Cells["N"].Value = solver.N;
+            
+            R.Cells["L2_Norm"].Value = solver.P_L2_Norm();
+
+
+        }
+        private void FillUNormDataGridView()
+        {
+            dataGridView2.Rows.Add();
+            int RowIndex = dataGridView2.RowCount - 1;
+            DataGridViewRow R = dataGridView2.Rows[RowIndex];
+            R.Cells["N"].Value = solver.N;
+
+            R.Cells["L2_Norm"].Value = solver.U_L2_Norm();
+
 
         }
 
@@ -39,7 +55,8 @@ namespace Piezo
             
 
             solver.Solve();
-
+            FillPNormDataGridView();
+            FillUNormDataGridView();
 
             pGraphControl.Invalidate();
             uGraphControl.Invalidate();
@@ -73,11 +90,59 @@ namespace Piezo
             pGraphControl.Invalidate();
             uGraphControl.Invalidate();
 
+           
+
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-           
+            dataGridView1.Columns.Add("N", "N");
+            dataGridView1.Columns.Add("L2_Norm", "L2_Norm");
+
+            dataGridView2.Columns.Add("N", "N");
+            dataGridView2.Columns.Add("L2_Norm", "L2_Norm");
+
+
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if (dataGridView1.Rows.Count == 3)
+            {
+                double p_h_l2 = (double)dataGridView1.Rows[0].Cells["L2_Norm"].Value;
+                double p_h2_l2 = (double)dataGridView1.Rows[1].Cells["L2_Norm"].Value;
+                double p_h4_l2 = (double)dataGridView1.Rows[2].Cells["L2_Norm"].Value;
+
+                double p_l2 = Math.Log(Math.Abs((p_h_l2 - p_h2_l2) / (p_h2_l2 - p_h4_l2)), 2.0);
+
+                textBox1.Text = p_l2.ToString();
+                
+                
+            }
+
+            if (dataGridView2.Rows.Count == 3)
+            {
+                double u_h_l2 = (double)dataGridView2.Rows[0].Cells["L2_Norm"].Value;
+                double u_h2_l2 = (double)dataGridView2.Rows[1].Cells["L2_Norm"].Value;
+                double u_h4_l2 = (double)dataGridView2.Rows[2].Cells["L2_Norm"].Value;
+
+                double u_l2 = Math.Log(Math.Abs((u_h_l2 - u_h2_l2) / (u_h2_l2 - u_h4_l2)), 2.0);
+
+                textBox2.Text = u_l2.ToString();
+
+
+            }
+
+        }
+
+        private void label9_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
