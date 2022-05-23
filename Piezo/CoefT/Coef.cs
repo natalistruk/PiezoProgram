@@ -36,7 +36,7 @@ namespace Piezo.CoefT
         public abstract double[,] FormA();
         public abstract double[,] FormE();
         public abstract double[,] FormC();
-        public abstract double[,] FormS();
+        public abstract double[,] FormG();
 
     }
 }

@@ -160,212 +160,67 @@ namespace Piezo
         }
 
 
-        private double[,] FormM()
-        {
-            double[,] a = new double[2 * n + 1, 5];
-
-            Function func;
-
-            a[0, 0] = 0;
-            a[0, 1] = 0;
-
-            a[0, 2] = IntegrateGauss((x) => (ro * fi[0](x) * fi[0](x)), xi[0], xi[1]);
-            a[0, 3] = IntegrateGauss((x) => (ro * fi[0](x) * fi[1](x)), xi[0], xi[1]);
-            a[0, 4] = IntegrateGauss((x) => (ro * fi[0](x) * fi[2](x)), xi[0], xi[1]);
-
-
-
-            a[1, 0] = 0;
-            a[1, 1] = IntegrateGauss((x) => (ro * fi[0](x) * fi[1](x)), xi[0], xi[1]);
-
-            a[1, 2] = IntegrateGauss((x) => (ro * fi[1](x) * fi[1](x)), xi[0], xi[1]);
-            a[1, 3] = IntegrateGauss((x) => (ro * fi[1](x) * fi[2](x)), xi[0], xi[1]);
-            a[1, 4] = 0;
-            for (int i = 2; i < 2 * n - 1; i++)
-            {
-                if (i % 2 == 0)
-                {
-                    a[i, 0] = IntegrateGauss((x) => (ro * fi[i](x) * fi[i - 2](x)), xi[i / 2 - 1], xi[i / 2]);
-                    a[i, 1] = IntegrateGauss((x) => (ro * fi[i](x) * fi[i - 1](x)), xi[i / 2 - 1], xi[i / 2]);
-
-                    a[i, 2] = IntegrateGauss((x) => (ro * fi[i](x) * fi[i](x)), xi[i / 2 - 1], xi[i / 2]);
-                    a[i, 2] += IntegrateGauss((x) => (ro * fi[i](x) * fi[i](x)), xi[i / 2], xi[i / 2 + 1]);
-
-                    a[i, 3] = IntegrateGauss((x) => (ro * fi[i](x) * fi[i + 1](x)), xi[i / 2], xi[i / 2 + 1]);
-                    a[i, 4] = IntegrateGauss((x) => (ro * fi[i](x) * fi[i + 2](x)), xi[i / 2], xi[i / 2 + 1]);
-                }
-                else
-                {
-                    a[i, 0] = 0;
-                    a[i, 1] = IntegrateGauss((x) => (ro * fi[i](x) * fi[i - 1](x)), xi[i / 2], xi[(i + 1) / 2]);
-
-                    a[i, 2] = IntegrateGauss((x) => (ro * fi[i](x) * fi[i](x)), xi[i / 2], xi[(i + 1) / 2]);
-                    a[i, 3] = IntegrateGauss((x) => (ro * fi[1](x) * fi[i + 1](x)), xi[i / 2], xi[(i + 1) / 2]);
-                    a[i, 4] = 0;
-                }
-
-            }
-
-            a[2 * n - 1, 0] = 0;
-            a[2 * n - 1, 1] = IntegrateGauss((x) => (ro * fi[2 * n - 1](x) * fi[2 * n - 2](x)), xi[n - 1], xi[n]);
-            a[2 * n - 1, 2] = IntegrateGauss((x) => (ro * fi[2 * n - 1](x) * fi[2 * n - 1](x)), xi[n - 1], xi[n]);
-            a[2 * n - 1, 3] = IntegrateGauss((x) => (ro * fi[2 * n - 1](x) * fi[2 * n](x)), xi[n - 1], xi[n]);
-            a[2 * n - 1, 4] = 0;
-
-
-
-            a[2 * n, 0] = IntegrateGauss((x) => (ro * fi[2 * n](x) * fi[2 * n - 2](x)), xi[n - 1], xi[n]);
-            a[2 * n, 1] = IntegrateGauss((x) => (ro * fi[2 * n](x) * fi[2 * n - 1](x)), xi[n - 1], xi[n]);
-            a[2 * n, 2] = IntegrateGauss((x) => (ro * fi[2 * n](x) * fi[2 * n](x)), xi[n - 1], xi[n]);
-            a[2 * n, 3] = 0;
-            a[2 * n, 4] = 0;
-
-
-
-            return a;
-
-        }
-        private double[,] FormOther(Function f)
-        {
-            double[,] a = new double[2 * n + 1, 5];
-
-
-            a[0, 0] = 0;
-            a[0, 1] = 0;
-
-            a[0, 2] = IntegrateGauss((x) => (f(x) * fiDerivative[0](x) * fiDerivative[0](x)), xi[0], xi[1]);
-            a[0, 3] = IntegrateGauss((x) => (f(x) * fiDerivative[0](x) * fiDerivative[1](x)), xi[0], xi[1]);
-            a[0, 4] = IntegrateGauss((x) => (f(x) * fiDerivative[0](x) * fiDerivative[2](x)), xi[0], xi[1]);
-
-
-
-            a[1, 0] = 0;
-            a[1, 1] = IntegrateGauss((x) => (f(x) * fiDerivative[0](x) * fiDerivative[1](x)), xi[0], xi[1]);
-
-            a[1, 2] = IntegrateGauss((x) => (f(x) * fiDerivative[1](x) * fiDerivative[1](x)), xi[0], xi[1]);
-            a[1, 3] = IntegrateGauss((x) => (f(x) * fiDerivative[1](x) * fiDerivative[2](x)), xi[0], xi[1]);
-            a[1, 4] = 0;
-            for (int i = 2; i < 2 * n - 1; i++)
-            {
-                if (i % 2 == 0)
-                {
-                    a[i, 0] = IntegrateGauss((x) => (f(x) * fiDerivative[i](x) * fiDerivative[i - 2](x)), xi[i / 2 - 1], xi[i / 2]);
-                    a[i, 1] = IntegrateGauss((x) => (f(x) * fiDerivative[i](x) * fiDerivative[i - 1](x)), xi[i / 2 - 1], xi[i / 2]);
-
-                    a[i, 2] = IntegrateGauss((x) => (f(x) * fiDerivative[i](x) * fiDerivative[i](x)), xi[i / 2 - 1], xi[i / 2]);
-                    a[i, 2] += IntegrateGauss((x) => (f(x) * fiDerivative[i](x) * fiDerivative[i](x)), xi[i / 2], xi[i / 2 + 1]);
-
-                    a[i, 3] = IntegrateGauss((x) => (f(x) * fiDerivative[i](x) * fiDerivative[i + 1](x)), xi[i / 2], xi[i / 2 + 1]);
-                    a[i, 4] = IntegrateGauss((x) => (f(x) * fiDerivative[i](x) * fiDerivative[i + 2](x)), xi[i / 2], xi[i / 2 + 1]);
-                }
-                else
-                {
-                    a[i, 0] = 0;
-                    a[i, 1] = IntegrateGauss((x) => (f(x) * fiDerivative[i](x) * fiDerivative[i - 1](x)), xi[i / 2], xi[(i + 1) / 2]);
-
-                    a[i, 2] = IntegrateGauss((x) => (f(x) * fiDerivative[i](x) * fiDerivative[i](x)), xi[i / 2], xi[(i + 1) / 2]);
-                    a[i, 3] = IntegrateGauss((x) => (f(x) * fiDerivative[i](x) * fiDerivative[i + 1](x)), xi[i / 2], xi[(i + 1) / 2]);
-                    a[i, 4] = 0;
-                }
-
-            }
-
-            a[2 * n - 1, 0] = 0;
-            a[2 * n - 1, 1] = IntegrateGauss((x) => (f(x) * fiDerivative[2 * n - 1](x) * fiDerivative[2 * n - 2](x)), xi[n - 1], xi[n]);
-            a[2 * n - 1, 2] = IntegrateGauss((x) => (f(x) * fiDerivative[2 * n - 1](x) * fiDerivative[2 * n - 1](x)), xi[n - 1], xi[n]);
-            a[2 * n - 1, 3] = IntegrateGauss((x) => (f(x) * fiDerivative[2 * n - 1](x) * fiDerivative[2 * n](x)), xi[n - 1], xi[n]);
-            a[2 * n - 1, 4] = 0;
-
-
-
-            a[2 * n, 0] = IntegrateGauss((x) => (f(x) * fiDerivative[2 * n](x) * fiDerivative[2 * n - 2](x)), xi[n - 1], xi[n]);
-            a[2 * n, 1] = IntegrateGauss((x) => (f(x) * fiDerivative[2 * n](x) * fiDerivative[2 * n - 1](x)), xi[n - 1], xi[n]);
-            a[2 * n, 2] = IntegrateGauss((x) => (f(x) * fiDerivative[2 * n](x) * fiDerivative[2 * n](x)), xi[n - 1], xi[n]);
-            a[2 * n, 3] = 0;
-            a[2 * n, 4] = 0;
-
-
-
-            return a;
-
-        }
-
-
-
-
         public void Solve()
         {
-            double b = IntegrateGauss((x) => (ro * fiDerivative[0](x) * fiDerivative[0](x)), xi[0], xi[1]);
-            Console.WriteLine(b);
             u = new double[2*n+1];
             p = new double[2*n+1];
 
-            //Початкові умови
-            for (int i = 0; i <= 2 * n; i++)
-            {
-                u[i] = 0;
-                p[i] = 0;
-            }
-
-            double[,] M = coef.FormM();
-            double[,] A = coef.FormA();
             double[,] C = coef.FormC();
             double[,] E = coef.FormE();
-            double[,] S = coef.FormS();
-
-
-            
-
-
-
+            double[,] G = coef.FormG();
             
             //формуємо вектор
-            double[] f = new double[2 * n+1];
+            double[] f = new double[4 * n + 2];
 
-            double[] ll = new double[2*n];
-            double[] r = new double[2*n];
-            for (int i = 0; i < n; i++)
+            double[] l = new double[2 * n + 1];
+            double[] r = new double[2 * n + 1];
+        
+            l[2*n] = sigma;
+            r[2*n] = D;
+
+            for (int i = 0; i < 4 * n + 1; i += 2)
             {
-                ll[i] = r[i] = 0;
-
-            }
-            ll[2*n - 1] = sigma;
-            r[2*n - 1] = D;
-
-
-
-
-            for (int i = 0; i < 4 * n+1; i += 2)
-            {
-                f[i] = ll[i / 2];
+                f[i] = l[i / 2];
                 f[i + 1] = r[i / 2];
-
             }
             
-
-
+            //формуємо загальну блочно-п'ятидіагональну матрицю
             Matrix[,] matrix = new Matrix[2 * n + 1, 5];
-            
 
+            for (int i = 0; i <= 2 * n; i++)
+            {
+                for (int k = 0; k < 5; ++k)
+                {
+                    matrix[i, k] = new Matrix(
+                        C[i, k], E[i, k],
+                        -E[i, k], G[i, k]);
+                }
+            }
 
-            Vector[] vector = new Vector[2*n+1];
+            // застосовуємо крайові умови
+            matrix[0, 2].A11 = Math.Pow(10, 50.0);
+            matrix[0, 2].A22 = Math.Pow(10, 50.0);
 
-            for (int i = 0; i < 2*n; i++)
+            //формуємо загальний блочний вектор
+            Vector[] vector = new Vector[2 * n + 1];
+            for (int i = 0; i <= 2 * n; i++)
             {
                 vector[i] = new Vector(f[2 * i], f[2 * i + 1]);
             }
 
-            Vector[] res = FivediagonalMatrixMethod(matrix, vector);
+            // розв'язуємо СЛАР з блочно-п'ятидіагональною матрицею
+            Vector[] res = FiveDiagonalLowerUpperMethod(matrix, vector);
 
 
-            for (int i = 0; i < n; i++)
+            for (int i = 0; i <= 2 *n; i++)
             {
                 u[i] = res[i].A1;
                 p[i] = res[i].A2;
-
             }
+
+
             Console.WriteLine("-------res------ ");
-            for (int i = 0; i < n; i++)
+            for (int i = 0; i <= 2 * n; i++)
             {
                 Console.WriteLine(res[i].A1);
                 Console.WriteLine(res[i].A2);
@@ -373,81 +228,84 @@ namespace Piezo
             }
             Console.WriteLine(" ");
 
-
-
-
         }
 
-
-        public static Vector[] FivediagonalMatrixMethod(Matrix[,] A, Vector[] F)
+        public static Vector[] FiveDiagonalLowerUpperMethod(Matrix[,] A, Vector[] F)
         {
-            int N = F.Length - 1;
+            int n = F.Length;
 
-            Matrix[] a = new Matrix[N + 1];
-            Matrix[] b = new Matrix[N + 1];
-            Matrix[] c = new Matrix[N + 1];
-            Matrix[] d = new Matrix[N + 1];
-            Matrix[] e = new Matrix[N + 1];
+            Matrix[] alpha = new Matrix[n];
+            Matrix[] beta = new Matrix[n];
+            Matrix[] gama = new Matrix[n];
+            Matrix[] sigma = new Matrix[n];
+            Matrix[] etha = new Matrix[n];
 
-            //формуємо вектори
-            for (int i = 0; i <= N; ++i)
+
+            for (int i = 0; i < n; ++i)
             {
-                a[i] = A[i, 0];
-                b[i] = -A[i, 1];
-                c[i] = A[i, 2];
-                d[i] = -A[i, 3];
-                e[i] = A[i, 4];
+                if (i >= 2)
+                    alpha[i] = A[i, 0];
+
+                if (i >= 1)
+                {
+                    beta[i] = A[i, 1];
+                    if (i >= 2)
+                        beta[i] = beta[i] - A[i, 0] * sigma[i - 2];
+                }
+
+                gama[i] = A[i, 2];
+
+                if (i >= 1)
+                    gama[i] = gama[i] - beta[i] * sigma[i - 1];
+                if (i >= 2)
+                    gama[i] = gama[i] - A[i, 0] * etha[i - 2];
+
+
+                if (i <= n - 2)
+                {
+                    Matrix mult = A[i, 3];
+                    if (i >= 1)
+                        mult = mult - beta[i] * etha[i - 1];
+                    sigma[i] = (gama[i].InvertedMatrix()) * mult;
+
+                }
+
+                if (i <= n - 3)
+                {
+                    etha[i] = (gama[i].InvertedMatrix()) * A[i, 4];
+                }
 
             }
 
-            //рахуємо коефіцієнти прогонки
-            Matrix[] p = new Matrix[N + 1];
-            Matrix[] q = new Matrix[N];
-            Vector[] r = new Vector[N + 2];
+            Vector[] v = new Vector[n];
 
-            Matrix[] D = new Matrix[N + 1];
-
-            p[1] = (c[0].InvertedMatrix()) * d[0];
-            q[1] = (c[0].InvertedMatrix()) * e[0];
-            r[1] = (c[0].InvertedMatrix()) * F[0];
-            D[1] = c[1] - b[1] * p[1];
-
-            p[2] = (D[1].InvertedMatrix()) * (d[1] - q[1] * b[1]);
-            r[2] = (D[1].InvertedMatrix()) * (F[1] + b[1] * r[1]);
-            q[2] = (D[1].InvertedMatrix()) * e[1];
-            //D[2] = c[2] - a[2] * q[1] + p[2] * (a[2] * p[1] - b[2]); 
-
-
-            for (int i = 2; i <= N; ++i)
+            for (int i = 0; i < n; ++i)
             {
-                D[i] = c[i] - a[i] * q[i - 1] + p[i] * (a[i] * p[i - 1] - b[i]);
-                if (i <= N - 1)
-                    p[i + 1] = (D[i].InvertedMatrix()) * (d[i] + q[i] * (a[i] * p[i - 1] - b[i]));
+                Vector mult = F[i];
+                if (i >= 1)
+                    mult = mult - beta[i] * v[i - 1];
 
-                r[i + 1] = (D[i].InvertedMatrix()) * (F[i] - a[i] * r[i - 1] - (a[i] * p[i - 1] - b[i]) * r[i]);
+                if (i >= 2)
+                    mult = mult - A[i, 0] * v[i - 2];
 
-                if (i <= N - 2)
-                    q[i + 1] = (D[i].InvertedMatrix()) * e[i];
+                v[i] = (gama[i].InvertedMatrix()) * mult;
             }
 
-            //шукаємо розвязки
-            Vector[] u = new Vector[N + 1];
-            u[N] = r[N + 1];
-            u[N - 1] = p[N] * u[N] + r[N];
+            Vector[] w = new Vector[n];
 
-            for (int i = N - 2; i >= 0; --i)
+            for (int i = n - 1; i >= 0; --i)
             {
-                u[i] = p[i + 1] * u[i + 1] - q[i + 1] * u[i + 2] + r[i + 1];
+                w[i] = v[i];
+
+                if (i < n - 1)
+                    w[i] = w[i] - sigma[i] * w[i + 1];
+
+                if (i < n - 2)
+                    w[i] = w[i] - etha[i] * w[i + 2];
             }
 
-
-
-            return u;
-
+            return w;
         }
-
-
-
     }
 
 }

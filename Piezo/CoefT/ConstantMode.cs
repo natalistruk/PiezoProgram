@@ -183,7 +183,7 @@ namespace Piezo.CoefT
             return m;
         }
 
-        public override double[,] FormS()
+        public override double[,] FormG()
         {
             double[,] elementMatrix = FormElementDerivativeMatrix(g);
 
