@@ -71,12 +71,18 @@ namespace Piezo
 
             pGraphControl.GraphPane.CurveList.Clear();
             uGraphControl.GraphPane.CurveList.Clear();
-            double[] x = new double[solver.N];
-            double[] u = new double[solver.N];
-            double[] p = new double[solver.N];
-            for (int i = 0; i < solver.N; i++)
+            double[] x = new double[2 * solver.N + 1];
+            double[] u = new double[2 * solver.N + 1];
+            double[] p = new double[2 * solver.N + 1];
+
+            double h = solver.L / solver.N;
+            for (int i = 0; i < 2 * solver.N + 1; i++)
             {
-                x[i]= solver.X[i];
+                x[i] = i * h / 2;
+            }
+            
+            for (int i = 0; i < 2 * solver.N + 1; i++)
+            {
                 u[i] = solver.U[i];
                 p[i] = solver.P[i];
             }
